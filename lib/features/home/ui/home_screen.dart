@@ -17,10 +17,9 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        systemOverlayStyle:
-            theme.colorScheme.background.computeLuminance() > 0.5
-                ? SystemUiOverlayStyle.dark
-                : SystemUiOverlayStyle.light,
+        systemOverlayStyle: _assignSystemUiOverlayStyle(
+          theme.colorScheme.background,
+        ),
         backgroundColor: theme.colorScheme.background,
         title: DecoratedBox(
           decoration: BoxDecoration(
@@ -36,9 +35,7 @@ class HomeScreen extends StatelessWidget {
                 AppSpacing.horizontalSpacing16,
                 Text(
                   'Currency Exhange Rates',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.foregroundColor,
-                  ),
+                  style: _assignAppBarTextStyle(theme),
                 ),
               ],
             ),
@@ -55,5 +52,21 @@ class HomeScreen extends StatelessWidget {
       ),
       body: const CurrencyTilesList(),
     );
+  }
+
+  TextStyle? _assignAppBarTextStyle(
+    ThemeData theme,
+  ) {
+    return theme.textTheme.titleSmall?.copyWith(
+      color: theme.foregroundColor,
+    );
+  }
+
+  SystemUiOverlayStyle _assignSystemUiOverlayStyle(
+    Color backgroundColor,
+  ) {
+    return backgroundColor.computeLuminance() > 0.5
+        ? SystemUiOverlayStyle.dark
+        : SystemUiOverlayStyle.light;
   }
 }
