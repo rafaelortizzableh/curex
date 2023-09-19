@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/core.dart';
 import '../../../features.dart';
 
 class ThemeIcon extends ConsumerWidget {
@@ -11,7 +12,19 @@ class ThemeIcon extends ConsumerWidget {
     final themeMode = ref.watch(themeModeControllerProvider);
     final icon = _assignIcon(themeMode);
 
-    return Icon(icon);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).preferredColor,
+      ),
+      child: Padding(
+        padding: AppConstants.padding4,
+        child: Icon(
+          icon,
+          color: Theme.of(context).foregroundColor,
+        ),
+      ),
+    );
   }
 
   IconData _assignIcon(ThemeMode themeMode) {
