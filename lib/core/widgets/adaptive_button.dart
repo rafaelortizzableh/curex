@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:curex/features/features.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ class AdaptiveButton extends StatelessWidget {
     required this.isLoading,
     required this.isDisabled,
     this.backgroundColor,
+    this.foregroundColor,
     this.padding,
     this.icon,
   });
@@ -20,6 +22,7 @@ class AdaptiveButton extends StatelessWidget {
   final Widget child;
   final EdgeInsets? padding;
   final Color? backgroundColor;
+  final Color? foregroundColor;
   final bool isLoading;
   final bool isDisabled;
   final Widget? icon;
@@ -34,6 +37,7 @@ class AdaptiveButton extends StatelessWidget {
     required bool isLoading,
     required bool isDisabled,
     Color? backgroundColor,
+    Color? foregroundColor,
     EdgeInsets? padding,
   }) {
     return _AdaptiveButtonWithIcon(
@@ -41,8 +45,12 @@ class AdaptiveButton extends StatelessWidget {
       isLoading: isLoading,
       isDisabled: isDisabled,
       backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
       padding: padding,
-      icon: Icon(iconData),
+      icon: Icon(
+        iconData,
+        color: foregroundColor,
+      ),
       child: child,
     );
   }
@@ -55,6 +63,7 @@ class AdaptiveButton extends StatelessWidget {
     required bool isDisabled,
     double iconSize = _defaultIconSize,
     Color? backgroundColor,
+    Color? foregroundColor,
     EdgeInsets? padding,
   }) {
     return _AdaptiveButtonWithIcon(
@@ -62,6 +71,7 @@ class AdaptiveButton extends StatelessWidget {
       isLoading: isLoading,
       isDisabled: isDisabled,
       backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
       padding: padding,
       icon: Image.asset(
         iconImageAsset,
@@ -78,6 +88,7 @@ class AdaptiveButton extends StatelessWidget {
     required bool isDisabled,
     double iconSize = _defaultIconSize,
     Color? backgroundColor,
+    Color? foregroundColor,
     EdgeInsets? padding,
   }) {
     return _AdaptiveButtonWithIcon(
@@ -85,6 +96,7 @@ class AdaptiveButton extends StatelessWidget {
       isLoading: isLoading,
       isDisabled: isDisabled,
       backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
       padding: padding,
       icon: Image.network(
         iconImageUrl,
@@ -106,11 +118,18 @@ class AdaptiveButton extends StatelessWidget {
     );
 
     if (isCupertino) {
-      return CupertinoButton(
-        onPressed: !_isButtonDisabled ? onPressed : null,
-        padding: padding,
-        color: backgroundColor,
-        child: child,
+      return CupertinoTheme(
+        data: CupertinoTheme.of(context).copyWith(
+          brightness: theme.brightness,
+          primaryColor: backgroundColor ?? theme.preferredColor,
+          primaryContrastingColor: foregroundColor ?? theme.foregroundColor,
+        ),
+        child: CupertinoButton(
+          onPressed: !_isButtonDisabled ? onPressed : null,
+          padding: padding,
+          color: backgroundColor,
+          child: child,
+        ),
       );
     }
 
@@ -119,6 +138,7 @@ class AdaptiveButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         padding: padding,
         backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
       ),
       child: child,
     );
@@ -167,6 +187,7 @@ class _ButtonChild extends StatelessWidget {
 class _AdaptiveButtonWithIcon extends AdaptiveButton {
   const _AdaptiveButtonWithIcon({
     super.backgroundColor,
+    super.foregroundColor,
     super.padding,
     required super.icon,
     required super.onPressed,
