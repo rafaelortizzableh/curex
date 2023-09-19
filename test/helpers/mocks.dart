@@ -1,5 +1,6 @@
 import 'package:curex/core/core.dart';
 import 'package:curex/features/features.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -21,10 +22,14 @@ class MockCurrencyController extends StateNotifier<CurrencyState>
 }
 
 class MockSelectedCurrencyController
-    extends StateNotifier<SelectedCurrencyState>
+    extends StateNotifier<AsyncValue<CurrencyModel>>
     with Mock
     implements SelectedCurrencyController {
   MockSelectedCurrencyController(super.state);
 
-  void setState(SelectedCurrencyState state) => this.state = state;
+  void setState(AsyncValue<CurrencyModel> state) => this.state = state;
+}
+
+class MockGoRouter extends Mock implements GoRouter {
+  MockGoRouter();
 }
