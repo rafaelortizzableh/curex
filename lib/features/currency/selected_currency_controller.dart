@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'currency.dart';
@@ -17,7 +18,7 @@ class SelectedCurrencyController
     this._ref,
     this._currencyCode,
   ) : super(_initialState(_ref, _currencyCode)) {
-    unawaited(_loadSelectedCurrency());
+    unawaited(loadSelectedCurrency());
   }
 
   final Ref _ref;
@@ -37,7 +38,7 @@ class SelectedCurrencyController
       (value) => value.currencies.asData?.value,
     ));
 
-    final selectedCurrency = currencies?.firstWhere(
+    final selectedCurrency = currencies?.firstWhereOrNull(
       (element) => element.currencyCode == code,
     );
 
@@ -48,13 +49,13 @@ class SelectedCurrencyController
     return AsyncValue.data(selectedCurrency);
   }
 
-  Future<void> _loadSelectedCurrency() async {
+  Future<void> loadSelectedCurrency() async {
     if (_currencyCode == null) return;
     final selectedCurrency =
         await _ref.read(currencyServiceProvider).getCurrency(
               _currencyCode!,
             );
-
+    if (!mounted) return;
     state = AsyncValue.data(selectedCurrency);
   }
 }

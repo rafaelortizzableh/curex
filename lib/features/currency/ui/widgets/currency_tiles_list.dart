@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -55,24 +57,29 @@ class CurrencyTilesList extends HookConsumerWidget {
     if (error != null) {
       return GenericError(
         errorText: error.toString(),
-        onRetry: () => _onRetry(ref),
+        onRetry: () => unawaited(_onRetry(ref)),
       );
     }
 
     final currenciesList = ref.watch(_currenciesListProvider);
 
-    return ListView.separated(
-      padding: AppConstants.padding8,
-      separatorBuilder: (_, __) => AppSpacing.verticalSpacing2,
-      itemCount: currenciesList.length,
-      itemBuilder: (context, index) {
-        final currency = ref.watch(_currenciesListProvider)[index];
-        return CurrencyTile(currency: currency);
-      },
+    return RefreshIndicator(
+      color: Theme.of(context).foregroundColor,
+      backgroundColor: Theme.of(context).preferredColor,
+      onRefresh: () async => await _onRetry(ref),
+      child: ListView.separated(
+        padding: AppConstants.padding8,
+        separatorBuilder: (_, __) => AppSpacing.verticalSpacing2,
+        itemCount: currenciesList.length,
+        itemBuilder: (context, index) {
+          final currency = ref.watch(_currenciesListProvider)[index];
+          return CurrencyTile(currency: currency);
+        },
+      ),
     );
   }
 
-  void _onRetry(WidgetRef ref) {
-    // ref.read(currencyControllerProvider.notifier).getCurrencies();
+  Future<void> _onRetry(WidgetRef ref) async {
+    return await ref.read(currencyControllerProvider.notifier).loadCurrencies();
   }
 }
