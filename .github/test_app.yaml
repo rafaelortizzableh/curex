@@ -1,0 +1,33 @@
+name: Cartalogue Test App
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test_app.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: latest
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          flutter pub global activate very_good_cli
+          very_good --analytics false
+          very_good packages get --recursive
+
+      - name: Run Tests
+        run: very_good test -j 4 --optimization --test-randomize-ordering-seed random
