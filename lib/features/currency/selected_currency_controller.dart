@@ -25,9 +25,11 @@ class SelectedCurrencyController
   final String? _currencyCode;
 
   static AsyncValue<CurrencyModel> _initialState(
-      Ref ref, String? currencyCode) {
-    // If currencyCode is null, then we will use the selectedCurrencyCode
-    // from the CurrencyController.
+    Ref ref,
+    String? currencyCode,
+  ) {
+    // If `currencyCode` is null, then we will use the `selectedCurrencyCode`
+    // from the `CurrencyController`.
     final code = currencyCode ??
         ref.read(
           currencyControllerProvider.select(
@@ -51,11 +53,15 @@ class SelectedCurrencyController
 
   Future<void> loadSelectedCurrency() async {
     if (_currencyCode == null) return;
-    final selectedCurrency =
-        await _ref.read(currencyServiceProvider).getCurrency(
-              _currencyCode!,
-            );
-    if (!mounted) return;
-    state = AsyncValue.data(selectedCurrency);
+    try {
+      final selectedCurrency =
+          await _ref.read(currencyServiceProvider).getCurrency(
+                _currencyCode!,
+              );
+      if (!mounted) return;
+      state = AsyncValue.data(selectedCurrency);
+    } on RandomValuesCurrencyServiceException catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
   }
 }

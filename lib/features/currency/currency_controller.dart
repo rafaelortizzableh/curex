@@ -23,12 +23,20 @@ class CurrencyController extends StateNotifier<CurrencyState> {
 
   final Ref _ref;
 
+  CurrencyService get _currencyService => _ref.read(currencyServiceProvider);
+
   Future<void> loadCurrencies() async {
-    final currencies = await _ref.read(currencyServiceProvider).getCurrencies();
-    state = CurrencyState(
-      currencies: AsyncValue.data(currencies),
-      selectedCurrencyCode: state.selectedCurrencyCode,
-    );
+    try {
+      final currencies = await _currencyService.getCurrencies();
+      state = CurrencyState(
+        currencies: AsyncValue.data(currencies),
+        selectedCurrencyCode: state.selectedCurrencyCode,
+      );
+    } on RandomValuesCurrencyServiceException catch (e, stackTrace) {
+      state = state.copyWith(
+        currencies: AsyncValue.error(e, stackTrace),
+      );
+    }
   }
 }
 
@@ -45,6 +53,16 @@ class CurrencyState extends Equatable {
         currencies: AsyncValue.loading(),
         selectedCurrencyCode: null,
       );
+
+  CurrencyState copyWith({
+    AsyncValue<Set<CurrencyModel>>? currencies,
+    String? selectedCurrencyCode,
+  }) {
+    return CurrencyState(
+      currencies: currencies ?? this.currencies,
+      selectedCurrencyCode: selectedCurrencyCode ?? this.selectedCurrencyCode,
+    );
+  }
 
   @override
   List<Object?> get props => [currencies, selectedCurrencyCode];

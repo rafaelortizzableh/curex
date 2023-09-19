@@ -1,10 +1,39 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/core.dart';
 import 'currency.dart';
 
+const _currencyServiceToUse = String.fromEnvironment('CURRENCY_SERVICE_TO_USE');
+
+const _shouldUseRandomValuesCurrencyService = _currencyServiceToUse == 'random';
+
+/// This provider is used to provide the [CurrencyService].
 final currencyServiceProvider = Provider.autoDispose<CurrencyService>(
-  (ref) => RandomValuesCurrencyService(ref),
+  (ref) {
+    if (!_shouldUseRandomValuesCurrencyService) {
+      // TODO(rafaelortizzableh): Implement an alternative currency service.
+      throw UnimplementedError(
+        'Only the random values currency service is implemented.',
+      );
+    }
+
+    return RandomValuesCurrencyService(ref);
+  },
+);
+
+/// This provider is used to provide the [GraphQLClient] to the [RandomValuesCurrencyService].
+final _graphQlClientProvider = Provider.autoDispose<GraphQLClient>(
+  (ref) {
+    final link = HttpLink(
+      'http://localhost:4000/graphql',
+    );
+
+    return GraphQLClient(
+      cache: GraphQLCache(),
+      link: link,
+    );
+  },
 );
 
 abstract class CurrencyService {
@@ -16,8 +45,10 @@ class RandomValuesCurrencyService implements CurrencyService {
   const RandomValuesCurrencyService(this._ref);
 
   final Ref _ref;
+  static const _tag = 'RandomValuesCurrencyService';
 
   GraphQLClient get _graphQLClient => _ref.read(_graphQlClientProvider);
+  LoggerService get _loggerService => _ref.read(loggerServiceProvider);
 
   @override
   Future<Set<CurrencyModel>> getCurrencies() async {
@@ -30,19 +61,29 @@ query {
   }
 }
 ''';
-    final queryResult = await _graphQLClient.query(
-      QueryOptions(document: gql(query)),
-    );
-    if (queryResult.hasException) {
-      throw queryResult.exception!;
+    try {
+      final queryResult = await _graphQLClient.query(
+        QueryOptions(document: gql(query)),
+      );
+      if (queryResult.hasException) {
+        throw queryResult.exception!;
+      }
+
+      final resultMap = queryResult.data!['exchangeRates'] as List;
+
+      return {
+        for (final currency in resultMap)
+          CurrencyModel.fromRandomExchangeRate(currency as Map<String, dynamic>)
+      };
+    } catch (e, stackTrace) {
+      _loggerService.captureException(e, stackTrace: stackTrace, tag: _tag);
+      Error.throwWithStackTrace(
+        RandomValuesCurrencyServiceException(
+          'Error while fetching currencies: $e\n$stackTrace',
+        ),
+        stackTrace,
+      );
     }
-
-    final resultMap = queryResult.data!['exchangeRates'] as List;
-
-    return {
-      for (final currency in resultMap)
-        CurrencyModel.fromRandomExchangeRate(currency as Map<String, dynamic>)
-    };
   }
 
   @override
@@ -60,28 +101,36 @@ query exchangeRate(\$code: String!)
     final variables = {
       'code': currencyCode,
     };
-    final queryResult = await _graphQLClient.query(
-      QueryOptions(document: gql(query), variables: variables),
-    );
-    if (queryResult.hasException) {
-      throw queryResult.exception!;
+    try {
+      final queryResult = await _graphQLClient.query(
+        QueryOptions(document: gql(query), variables: variables),
+      );
+      if (queryResult.hasException) {
+        throw queryResult.exception!;
+      }
+
+      final currency = queryResult.data!['exchangeRate'] as Map;
+
+      return CurrencyModel.fromRandomExchangeRate(
+        currency as Map<String, dynamic>,
+      );
+    } catch (e, stackTrace) {
+      _loggerService.captureException(e, stackTrace: stackTrace, tag: _tag);
+      Error.throwWithStackTrace(
+        RandomValuesCurrencyServiceException(
+          'Error while fetching currency with currencyCode: $currencyCode: $e',
+        ),
+        stackTrace,
+      );
     }
-
-    final currency = queryResult.data!['exchangeRate'] as Map;
-
-    return CurrencyModel.fromRandomExchangeRate(
-      currency as Map<String, dynamic>,
-    );
   }
 }
 
-final _graphQlClientProvider = Provider.autoDispose<GraphQLClient>((ref) {
-  final link = HttpLink(
-    'http://localhost:4000/graphql',
-  );
+class RandomValuesCurrencyServiceException implements Exception {
+  const RandomValuesCurrencyServiceException(this.message);
 
-  return GraphQLClient(
-    cache: GraphQLCache(),
-    link: link,
-  );
-});
+  final String message;
+
+  @override
+  String toString() => 'RandomValuesCurrencyServiceException: $message';
+}
