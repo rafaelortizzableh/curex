@@ -47,18 +47,6 @@ query {
 
   @override
   Future<CurrencyModel> getCurrency(String currencyCode) async {
-    // Based on this model get the currency from the server. There's a String argument (code):
-//     export class ExchangeRate {
-//     @Field(() => String)
-//     public code!: string;
-
-//     @Field(() => String)
-//     public description!: string;
-
-//     @Field(() => [Number])
-//     public rates!: number[];
-// }
-
     const query = '''
 query exchangeRate(\$code: String!)
  {

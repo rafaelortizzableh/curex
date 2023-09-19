@@ -42,7 +42,6 @@ class RouterNotifier extends ChangeNotifier {
       path: ThemeScreen.routeName,
       name: ThemeScreen.routeName,
       pageBuilder: (context, state) => const MaterialPage(
-        fullscreenDialog: true,
         child: ThemeScreen(),
       ),
     ),
