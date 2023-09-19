@@ -33,7 +33,6 @@ class CurrencyTile extends StatelessWidget {
                 padding: AppConstants.padding8,
                 child: Text(
                   currency.currencyCode,
-                  key: ObjectKey('currency_code_tile_${currency.currencyCode}'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: theme.foregroundColor,
                   ),
