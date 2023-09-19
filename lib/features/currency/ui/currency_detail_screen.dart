@@ -3,12 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../core/core.dart';
 import '../../features.dart';
 
-class CurrencyDetailScreen extends HookWidget {
+class CurrencyDetailScreen extends HookConsumerWidget {
   const CurrencyDetailScreen({
     super.key,
     required this.currencyId,
@@ -19,7 +20,7 @@ class CurrencyDetailScreen extends HookWidget {
   static const currencyIdParameterName = 'currencyId';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     useEffect(
       () {
         _navigateTo404IfNeeded(context);
@@ -34,36 +35,28 @@ class CurrencyDetailScreen extends HookWidget {
 
     final theme = Theme.of(context);
 
-    // TODO(rafaelortizzableh): Replace with real data
-    final currency = CurrencyModel(
-      currencyCode: 'EUR',
-      currencyName: 'Euro',
-      latestExchangeRate: 0.8,
-      description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc eu nisl. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc eu nisl.' *
-              2,
-      historicalExchangeRates: {
-        DateTime.now().subtract(const Duration(days: 1)): 0.8,
-        DateTime.now().subtract(const Duration(days: 2)): 0.9,
-        DateTime.now().subtract(const Duration(days: 3)): 0.7,
-        DateTime.now().subtract(const Duration(days: 4)): 0.8,
-        DateTime.now().subtract(const Duration(days: 5)): 0.7,
-        DateTime.now().subtract(const Duration(days: 6)): 0.6,
-        DateTime.now().subtract(const Duration(days: 7)): 0.65,
-        DateTime.now().subtract(const Duration(days: 8)): 0.7,
-        DateTime.now().subtract(const Duration(days: 9)): 0.85,
-        DateTime.now().subtract(const Duration(days: 10)): 0.9,
-        DateTime.now().subtract(const Duration(days: 11)): 0.6,
-        DateTime.now().subtract(const Duration(days: 12)): 0.65,
-        DateTime.now().subtract(const Duration(days: 13)): 0.7,
-        DateTime.now().subtract(const Duration(days: 14)): 0.85,
-        DateTime.now().subtract(const Duration(days: 15)): 0.9,
-      },
+    final currency = ref.watch(
+      selectedCurrencyControllerProvider(currencyId).select(
+        (value) => value.maybeWhen(
+          data: (currency) => currency,
+          orElse: () => null,
+        ),
+      ),
     );
+
+    if (currency == null) {
+      return Scaffold(
+        body: GenericError(
+          errorText: 'No currency found with id: $currencyId',
+          onRetry: () => Navigator.pop(context),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
+        shadowColor: theme.colorScheme.background,
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: const CloseButton(),
@@ -74,73 +67,100 @@ class CurrencyDetailScreen extends HookWidget {
           ),
         ),
         title: Text(
-          key: ObjectKey('currency_code_title_$currencyId'),
           currencyId,
           textAlign: TextAlign.center,
         ),
       ),
-      body: Hero(
-        tag: 'hero_$currencyId',
-        child: Stack(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: ColoredBox(
-                    color: theme.colorScheme.background,
+      body: Stack(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: ColoredBox(
+                  color: theme.colorScheme.background,
+                ),
+              ),
+            ],
+          ),
+          CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: AppConstants.padding8,
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    'Current Exhange Rate',
+                    style: theme.textTheme.headlineSmall,
                   ),
                 ),
-              ],
-            ),
-            CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: AppConstants.padding8,
-                  sliver: SliverToBoxAdapter(
+              ),
+              SliverPadding(
+                padding: AppConstants.padding8,
+                sliver: SliverToBoxAdapter(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(seconds: 1),
+                    transitionBuilder: (child, animation) {
+                      // SlideTransition
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
                     child: Text(
-                      'Description',
-                      style: theme.textTheme.headlineSmall,
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: AppConstants.padding8,
-                  sliver: SliverToBoxAdapter(
-                    child: Text(
-                      currency.description,
+                      currency.currentExhangeRateLabel,
+                      key: ObjectKey(
+                        'currency_current_exchange_rate_${currency.currentExhangeRateLabel}',
+                      ),
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.spacing16,
-                    vertical: AppConstants.spacing8,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: Text(
-                      'Historical Exchange Rates',
-                      style: theme.textTheme.headlineSmall,
-                    ),
+              ),
+              SliverPadding(
+                padding: AppConstants.padding8,
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    'Description',
+                    style: theme.textTheme.headlineSmall,
                   ),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.spacing16,
-                    vertical: AppConstants.spacing16,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: CurrencyHistoricalExchangeChart(
-                      currency: currency,
-                    ),
+              ),
+              SliverPadding(
+                padding: AppConstants.padding8,
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    currency.description,
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spacing16,
+                  vertical: AppConstants.spacing8,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    'Historical Exchange Rates',
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spacing16,
+                  vertical: AppConstants.spacing16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: CurrencyHistoricalExchangeChart(
+                    currency: currency,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

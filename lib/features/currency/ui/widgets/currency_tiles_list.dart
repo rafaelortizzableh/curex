@@ -5,63 +5,38 @@ import '../../../../core/core.dart';
 import '../../../features.dart';
 
 final _currenciesListError = Provider.autoDispose<Exception?>((ref) {
-  // final error = ref.watch(currencyControllerProvider.select(
-  //   (value) => value.currencies.maybeWhen(
-  //     error: (error, _) => error,
-  //     orElse: () => null,
-  //   ),
-  // ));
+  final error = ref.watch(currencyControllerProvider.select(
+    (value) => value.currencies.maybeWhen(
+      error: (error, _) => error,
+      orElse: () => null,
+    ),
+  ));
 
-  // return error;
-  return null;
+  if (error == null) return null;
+
+  if (error is! Exception) return Exception(error);
+
+  return error;
 });
 
 final _isLoadingCurrenciesProvider = Provider.autoDispose<bool>((ref) {
-  // final isLoading = ref.watch(currencyControllerProvider.select(
-  //   (value) => value.currencies.maybeWhen(
-  //     loading: () => true,
-  //     orElse: () => false,
-  //   ),
-  // ));
+  final isLoading = ref.watch(currencyControllerProvider.select(
+    (value) => value.currencies.maybeWhen(
+      loading: () => true,
+      orElse: () => false,
+    ),
+  ));
 
-  // return isLoading;
-  return false;
+  return isLoading;
 });
 
 final _currenciesListProvider =
     Provider.autoDispose<List<CurrencyModel>>(((ref) {
-  // final currencies = ref.watch(currencyControllerProvider.select(
-  //   (value) => value.currencies.asData?.value ?? [],
-  // ));
+  final currencies = ref.watch(currencyControllerProvider.select(
+    (value) => value.currencies.asData?.value ?? <CurrencyModel>{},
+  ));
 
-  // return currencies.toList();
-  return [
-    const CurrencyModel(
-      currencyCode: 'USD',
-      currencyName: 'United States Dollar',
-      latestExchangeRate: 1.0,
-      historicalExchangeRates: {},
-      description: 'The US dollar',
-    ),
-    CurrencyModel(
-      currencyCode: 'EUR',
-      currencyName: 'Euro',
-      historicalExchangeRates: {
-        DateTime.now().subtract(const Duration(days: 1)): 0.8,
-        DateTime.now().subtract(const Duration(days: 2)): 0.9,
-        DateTime.now().subtract(const Duration(days: 3)): 0.7,
-        DateTime.now().subtract(const Duration(days: 4)): 0.8,
-        DateTime.now().subtract(const Duration(days: 5)): 0.7,
-        DateTime.now().subtract(const Duration(days: 6)): 0.6,
-        DateTime.now().subtract(const Duration(days: 7)): 0.65,
-        DateTime.now().subtract(const Duration(days: 8)): 0.7,
-        DateTime.now().subtract(const Duration(days: 9)): 0.85,
-        DateTime.now().subtract(const Duration(days: 10)): 0.9,
-      },
-      latestExchangeRate: 0.90,
-      description: 'The Euro',
-    ),
-  ];
+  return currencies.toList();
 }));
 
 class CurrencyTilesList extends HookConsumerWidget {

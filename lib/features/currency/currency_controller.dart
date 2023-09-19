@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -15,7 +17,9 @@ class CurrencyController extends StateNotifier<CurrencyState> {
   CurrencyController(
     super.state,
     this._ref,
-  );
+  ) {
+    unawaited(loadCurrencies());
+  }
 
   final Ref _ref;
 

@@ -19,12 +19,11 @@ class CurrencyTile extends StatelessWidget {
 
     return ListTileTheme(
       contentPadding: EdgeInsets.zero,
-      child: ListTile(
-        onTap: () => _navigateToDetailScreen(context),
-        leading: Padding(
-          padding: const EdgeInsets.only(left: AppConstants.spacing8),
-          child: Hero(
-            tag: 'hero_${currency.currencyCode}',
+      child: Card(
+        child: ListTile(
+          onTap: () => _navigateToDetailScreen(context),
+          leading: Padding(
+            padding: const EdgeInsets.only(left: AppConstants.spacing8),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: theme.preferredColor,
@@ -42,23 +41,31 @@ class CurrencyTile extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        trailing: ColoredBox(
-          color: _leadingColor,
-          child: Padding(
-            padding: AppConstants.padding8,
-            child: Icon(
-              _hasDecreasedIcon,
-              color: Colors.white,
-              size: theme.textTheme.titleMedium!.fontSize! * 2,
+          trailing: Padding(
+            padding: const EdgeInsets.only(
+              right: AppConstants.spacing8,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: AppConstants.borderRadius8,
+                color: _trailingColor,
+              ),
+              child: Padding(
+                padding: AppConstants.padding8,
+                child: Icon(
+                  _hasDecreasedIcon,
+                  color: Colors.white,
+                  size: theme.textTheme.titleMedium!.fontSize! * 2,
+                ),
+              ),
             ),
           ),
-        ),
-        title: Text(
-          currency.currencyName,
-        ),
-        subtitle: Text(
-          'Exchange Rate: ${currency.latestExchangeRate}',
+          title: Text(
+            currency.currencyName,
+          ),
+          subtitle: Text(
+            'Exchange Rate: ${currency.currentExhangeRateLabel}',
+          ),
         ),
       ),
     );
@@ -68,7 +75,7 @@ class CurrencyTile extends StatelessWidget {
     return currency.hasDecreased ? Icons.arrow_downward : Icons.arrow_upward;
   }
 
-  Color get _leadingColor {
+  Color get _trailingColor {
     return currency.hasDecreased ? Colors.red : Colors.green;
   }
 

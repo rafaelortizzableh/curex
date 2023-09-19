@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -50,21 +49,21 @@ class RouterNotifier extends ChangeNotifier {
     GoRoute(
       path: CurrencyDetailScreen.routeName,
       name: CurrencyDetailScreen.routeName,
-      pageBuilder: (context, state) => ModalBottomSheetPage(
-        isScrollControlled: true,
-        isDismissible: true,
-        enableDrag: true,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: AppConstants.borderRadius32,
-        ),
-        child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.light,
-          child: CurrencyDetailScreen(
-            currencyId: state.uri.queryParameters['currencyId'],
+      pageBuilder: (context, state) {
+        final currencyId = state.uri.queryParameters['currencyId'];
+        return ModalBottomSheetPage(
+          isScrollControlled: true,
+          isDismissible: true,
+          enableDrag: true,
+          useSafeArea: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppConstants.borderRadius32,
           ),
-        ),
-      ),
+          child: CurrencyDetailScreen(
+            currencyId: currencyId,
+          ),
+        );
+      },
     ),
     GoRoute(
       path: UnknownRouteScreen.routeName,
