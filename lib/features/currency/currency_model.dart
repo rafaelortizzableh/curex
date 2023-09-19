@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 class CurrencyModel extends Equatable {
   const CurrencyModel({
@@ -35,7 +36,7 @@ class CurrencyModel extends Equatable {
         description,
       ];
 
-  static CurrencyModel fromRandomExchangeRate(
+  factory CurrencyModel.fromRandomExchangeRate(
     Map<String, dynamic> exchangeRate,
   ) {
     final currencyCode = exchangeRate['code'] as String?;
@@ -52,12 +53,12 @@ class CurrencyModel extends Equatable {
       throw Exception('Invalid exchange rate');
     }
 
-    final currencyName = _parseCurrencyName(description, currencyCode);
+    final currencyName = parseCurrencyName(description, currencyCode);
 
     final latestExchangeRate =
         (allExchangeRatesList.last as num).abs().toDouble();
 
-    final historicalExchangeRates = _parseHistoricalExchangeRates(
+    final historicalExchangeRates = parseHistoricalExchangeRates(
       allExchangeRatesList,
     );
 
@@ -70,7 +71,8 @@ class CurrencyModel extends Equatable {
     );
   }
 
-  static String _parseCurrencyName(String description, String currencyCode) {
+  @visibleForTesting
+  static String parseCurrencyName(String description, String currencyCode) {
     if (description.isEmpty) return currencyCode;
 
     final hasFirstSentence = description.contains('.');
@@ -80,27 +82,30 @@ class CurrencyModel extends Equatable {
 
     if (!firstSentence.contains('(')) return currencyCode;
 
-    final currencyName = description.split('(').first;
+    final currencyName = description.split('(').first.trim();
     if (currencyName.isEmpty) return currencyCode;
     return currencyName;
   }
 
-  static Map<DateTime, double> _parseHistoricalExchangeRates(
+  @visibleForTesting
+  static Map<DateTime, double> parseHistoricalExchangeRates(
     List allExchangeRatesList,
   ) {
-    final historicExchangeRatesList = [
-      ...allExchangeRatesList.where(
-        (element) => element != allExchangeRatesList.last,
-      ),
-    ];
+    final historicExchangeRatesList =
+        [...allExchangeRatesList].reversed.toList();
+    final historicExchangeRatesLength = historicExchangeRatesList.length;
 
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final historicalExchangeRates = <DateTime, double>{
-      for (var i = 0; i < historicExchangeRatesList.length; i++) ...{
-        now.subtract(Duration(days: i)):
+      for (var i = 0; i < historicExchangeRatesLength; i++) ...{
+        today.subtract(Duration(days: i)):
             (historicExchangeRatesList[i] as num).abs().toDouble(),
       },
     };
+
+    // Remove the last item, which is the latest exchange rate.
+    historicalExchangeRates.remove(today);
     return historicalExchangeRates;
   }
 }
