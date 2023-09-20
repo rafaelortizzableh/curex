@@ -28,7 +28,7 @@ flutter run \
 ```
 
 Currently there is only one currency service that can be used:
-- `random`: This service returns random exchange rates for the currencies that are supported by the app. In order to use this service, you need to run the app with the `--dart-define=CURRENCY_SERVICE_TO_USE=random` flag. You also need to clone this repository and run the [currency-service](https://github.com/cuidtech/developers/tree/main) from the `mobile/task/server` directory. You can find instructions on how to run the currency service [here](https://github.com/cuidtech/developers/tree/main/mobile/task).
+- `random`: This service returns random exchange rates for the currencies that are supported by the app. In order to use this service, you need to run the app with the `--dart-define=CURRENCY_SERVICE_TO_USE=random` flag. You also need to clone [this repository and run the currency-service](https://github.com/cuidtech/developers/tree/main) from the `mobile/task/server` directory. You can find instructions on how to run the currency service [here](https://github.com/cuidtech/developers/tree/main/mobile/task).
 
 ## Screenshots
 <img width="300" alt="Curex App - Screenshot 1" src="https://github.com/rafaelortizzableh/curex/assets/57945332/2da0b110-546c-4185-b6a7-7bb75d58d4aa">
