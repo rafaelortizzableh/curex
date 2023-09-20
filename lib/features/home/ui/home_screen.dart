@@ -44,9 +44,9 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const ThemeIcon(),
-            onPressed: () {
-              context.pushNamed(ThemeScreen.routeName);
-            },
+            onPressed: () => context.pushNamed(
+              ThemeScreen.routeName,
+            ),
           ),
         ],
       ),

@@ -1,7 +1,6 @@
 import 'package:curex/features/theme/foreground_color_theme_extension.dart';
 import 'package:curex/features/theme/preferred_color_theme_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/core.dart';
 import '../../currency.dart';
@@ -10,8 +9,11 @@ class CurrencyTile extends StatelessWidget {
   const CurrencyTile({
     super.key,
     required this.currency,
+    required this.onPressed,
   });
+
   final CurrencyModel currency;
+  final void Function(CurrencyModel) onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class CurrencyTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       child: Card(
         child: ListTile(
-          onTap: () => _navigateToDetailScreen(context),
+          onTap: () => onPressed(currency),
           leading: Padding(
             padding: const EdgeInsets.only(left: AppConstants.spacing8),
             child: DecoratedBox(
@@ -76,14 +78,5 @@ class CurrencyTile extends StatelessWidget {
 
   Color get _trailingColor {
     return currency.hasDecreased ? Colors.red : Colors.green;
-  }
-
-  void _navigateToDetailScreen(BuildContext context) {
-    context.pushNamed(
-      CurrencyDetailScreen.routeName,
-      queryParameters: {
-        CurrencyDetailScreen.currencyIdParameterName: currency.currencyCode,
-      },
-    );
   }
 }

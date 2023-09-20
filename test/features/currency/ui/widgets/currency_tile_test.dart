@@ -28,6 +28,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 
@@ -55,6 +56,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 
@@ -82,6 +84,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 
@@ -109,6 +112,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 
@@ -139,6 +143,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 
@@ -166,6 +171,7 @@ void main() {
           await tester.pumpApp(
             CurrencyTile(
               currency: currency,
+              onPressed: (_) {},
             ),
           );
 

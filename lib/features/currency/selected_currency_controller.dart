@@ -24,6 +24,12 @@ class SelectedCurrencyController
   final Ref _ref;
   final String? _currencyCode;
 
+  @override
+  void dispose() {
+    _ref.read(currencyControllerProvider.notifier).clearSelectedCurrency();
+    super.dispose();
+  }
+
   static AsyncValue<CurrencyModel> _initialState(
     Ref ref,
     String? currencyCode,

@@ -38,6 +38,16 @@ class CurrencyController extends StateNotifier<CurrencyState> {
       );
     }
   }
+
+  void setSelectedCurrencyCode(String currencyCode) {
+    state = state.copyWith(
+      selectedCurrencyCode: currencyCode,
+    );
+  }
+
+  void clearSelectedCurrency() {
+    state = state.clearSelectedCurrency();
+  }
 }
 
 class CurrencyState extends Equatable {
@@ -61,6 +71,13 @@ class CurrencyState extends Equatable {
     return CurrencyState(
       currencies: currencies ?? this.currencies,
       selectedCurrencyCode: selectedCurrencyCode ?? this.selectedCurrencyCode,
+    );
+  }
+
+  CurrencyState clearSelectedCurrency() {
+    return CurrencyState(
+      currencies: currencies,
+      selectedCurrencyCode: null,
     );
   }
 

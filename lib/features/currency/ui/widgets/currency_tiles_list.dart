@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/core.dart';
@@ -73,7 +74,14 @@ class CurrencyTilesList extends HookConsumerWidget {
         itemCount: currenciesList.length,
         itemBuilder: (context, index) {
           final currency = ref.watch(_currenciesListProvider)[index];
-          return CurrencyTile(currency: currency);
+          return CurrencyTile(
+            currency: currency,
+            onPressed: (currency) => _onCurrencyPressed(
+              context,
+              ref,
+              currency,
+            ),
+          );
         },
       ),
     );
@@ -81,5 +89,22 @@ class CurrencyTilesList extends HookConsumerWidget {
 
   Future<void> _onRetry(WidgetRef ref) async {
     return await ref.read(currencyControllerProvider.notifier).loadCurrencies();
+  }
+
+  void _onCurrencyPressed(
+    BuildContext context,
+    WidgetRef ref,
+    CurrencyModel currency,
+  ) {
+    final controller = ref.read(currencyControllerProvider.notifier);
+    controller.setSelectedCurrencyCode(
+      currency.currencyCode,
+    );
+    context.pushNamed(
+      CurrencyDetailScreen.routeName,
+      queryParameters: {
+        CurrencyDetailScreen.currencyIdParameterName: currency.currencyCode,
+      },
+    );
   }
 }
